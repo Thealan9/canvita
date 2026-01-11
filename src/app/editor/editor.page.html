@@ -1,0 +1,64 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Diseñador</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <!-- Barra de herramientas -->
+  <ion-grid>
+    <ion-row>
+      <ion-col
+        ><ion-button size="small" (click)="addText()"
+          >Texto</ion-button
+        ></ion-col
+      >
+      <ion-col>
+        <ion-button size="small" (click)="addImage()"
+          >Imagen</ion-button
+        ></ion-col
+      >
+      <ion-col
+        ><ion-button size="small" (click)="delete()"
+          >Eliminar</ion-button
+        ></ion-col
+      >
+    </ion-row>
+  </ion-grid>
+
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="open()">Abrir</ion-button>
+      <ion-button (click)="save()">Guardar</ion-button>
+      <ion-button (click)="saveAs()">Guardar como</ion-button>
+      <ion-button (click)="exportPNG()">Exportar PNG</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Controles del objeto -->
+  <ion-item>
+    <ion-label>Color</ion-label>
+    <input type="color" (change)="changeColor($event)" />
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Tamaño</ion-label>
+    <ion-range
+      min="10"
+      max="80"
+      step="1"
+      (ionChange)="changeFontSize($event)"
+    ></ion-range>
+  </ion-item>
+
+  <!-- Lienzo -->
+  <div style="text-align: center; margin-top: 10px">
+    <canvas
+      id="canvas"
+      width="350"
+      height="500"
+      style="border: 1px solid #ccc"
+    ></canvas>
+  </div>
+</ion-content>
