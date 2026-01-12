@@ -2,19 +2,15 @@
   <div class="editor-toolbar">
     <div class="tool-group">
       <ion-button class="btn-tool" fill="clear" color="dark" (click)="open()"
-        >Abrir</ion-button>
+        >Abrir</ion-button
+      >
       <ion-button class="btn-tool" fill="solid" color="primary" (click)="save()"
         >Guardar</ion-button
       >
-      <ion-button
-        class="btn-tool"
-        fill="clear"
-        color="medium"
-        (click)="exportPNG()"
-        >
-          Exportar a PNG
-        </ion-button
-      >
+      <ion-button (click)="presentExportMenu()" fill="outline">
+        <ion-icon name="download-outline" slot="start"></ion-icon>
+        Exportar
+      </ion-button>
     </div>
 
     <div class="tool-group">
@@ -34,7 +30,7 @@
       >
     </div>
 
-    <div class="tool-group">
+    <div class="tool-group" *ngIf="selectedObjectType === 'textbox'">
       <ion-select
         class="compact-select"
         interface="popover"
@@ -85,9 +81,9 @@
     </div>
 
     <div class="tool-group" style="gap: 15px">
-      <div class="color-wrapper">
+      <div class="color-wrapper" *ngIf="selectedObjectType === 'textbox'">
         <input type="color" (change)="changeColor($event)" value="#000000" />
-        <span>Objeto</span>
+        <span>Color</span>
       </div>
       <div class="color-wrapper">
         <input
@@ -99,8 +95,7 @@
       </div>
     </div>
 
-    <div class="tool-group" style="border: none">
-
+    <div class="tool-group" style="border: none" *ngIf="selectedObjectType === 'textbox' || selectedObjectType === 'image'">
       <ion-button
         class="btn-tool"
         fill="clear"
@@ -131,4 +126,3 @@
     <canvas id="canvas"></canvas>
   </div>
 </ion-content>
-

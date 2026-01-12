@@ -1,5 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { Directory, Filesystem } from '@capacitor/filesystem';
+import { ActionSheetController } from '@ionic/angular';
 import { Canvas, Textbox, Image as FabricImage, Point } from 'fabric';
 
 @Component({
@@ -11,6 +12,9 @@ import { Canvas, Textbox, Image as FabricImage, Point } from 'fabric';
 export class EditorPage implements AfterViewInit {
   canvas!: Canvas;
   currentFile: FileSystemFileHandle | null = null;
+  selectedObjectType: string | null = null;
+
+  constructor(private actionSheetCtrl: ActionSheetController) {}
 
   ngAfterViewInit() {
     const tipo = localStorage.getItem('tipeBlank');
@@ -44,6 +48,12 @@ export class EditorPage implements AfterViewInit {
           });
       }
     }
+
+    this.canvas.on('selection:created', (e) => this.updateUI(e));
+    this.canvas.on('selection:updated', (e) => this.updateUI(e));
+    this.canvas.on('selection:cleared', () => {
+      this.selectedObjectType = null;
+    });
   }
 
   addText() {
@@ -135,8 +145,6 @@ export class EditorPage implements AfterViewInit {
     const writable = await this.currentFile.createWritable();
     await writable.write(stringJson);
     await writable.close();
-
-    alert('Guardado');
   }
 
   async saveAs() {
@@ -217,17 +225,30 @@ export class EditorPage implements AfterViewInit {
     }
   }
 
-  exportPNG() {
+  exportAs(format: 'png' | 'jpeg' | 'webp') {
     const data = this.canvas.toDataURL({
-      format: 'png',
-      quality: 1,
+      format: format,
+      quality: 0.9,
       multiplier: 3,
     });
 
     const link = document.createElement('a');
     link.href = data;
-    link.download = 'diseño.png';
+    link.download = `mi_diseno.${format}`;
     link.click();
+  }
+
+  async presentExportMenu() {
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'Exportar diseño',
+      buttons: [
+        { text: 'PNG', handler: () => this.exportAs('png') },
+        { text: 'JPG', handler: () => this.exportAs('jpeg') },
+        { text: 'WebP', handler: () => this.exportAs('webp') },
+        { text: 'Cancelar', role: 'cancel' },
+      ],
+    });
+    await actionSheet.present();
   }
 
   toggleLock() {
@@ -279,4 +300,12 @@ export class EditorPage implements AfterViewInit {
     obj.set('fontFamily', event.detail.value);
     this.canvas.requestRenderAll();
   }
+
+  updateUI(e: any) {
+  const selectedObject = e.selected[0];
+  // Fabric llama 'textbox' al texto y 'image' a las imágenes
+  this.selectedObjectType = selectedObject.type;
+}
+
+
 }
