@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { IonContent, IonButton } from "@ionic/angular/standalone";
+
 @Component({
   selector: 'app-inicio',
   templateUrl: './inicio.page.html',
@@ -45,7 +47,7 @@ async openLocalProject() {
     return [
       {
         id: 'blank1',
-        name: 'Lienzo en blanco',
+        name: 'Lienzo en blanco vertical',
         category: 'blank',
         preview: 'assets/blank.png',
         orientacion: 'vertical',
@@ -53,21 +55,12 @@ async openLocalProject() {
       },
       {
         id: 'blank2',
-        name: 'Lienzo en blanco Triptico',
+        name: 'Lienzo en blanco horizontal',
         category: 'blank',
         preview: 'assets/blank.png',
         orientacion: 'horizontal',
         json: null
       },
-      {
-        id: 'blank3',
-        name: 'Lienzo en blanco Invitación',
-        category: 'blank',
-        preview: 'assets/blank.png',
-        orientacion: 'vertical',
-        json: null
-      },
-
       {
         id: 'trip1',
         name: 'Tríptico clásico',
@@ -75,6 +68,14 @@ async openLocalProject() {
         preview: 'assets/templates/tripticos/triptico1.png',
         orientacion: 'horizontal',
         json: 'assets/templates/tripticos/triptico1.json'
+      },
+      {
+        id: 'trip2',
+        name: 'Tríptico clasico 2',
+        category: 'triptico',
+        preview: 'assets/templates/tripticos/triptico2.png',
+        orientacion: 'horizontal',
+        json: 'assets/templates/tripticos/triptico2.json'
       },
 
       {
@@ -84,6 +85,22 @@ async openLocalProject() {
         preview: 'assets/templates/invitaciones/invitacion1.png',
         orientacion: 'vertical',
         json: 'assets/templates/invitaciones/invitacion1.json'
+      },
+      {
+        id: 'inv2',
+        name: 'Invitación quince años',
+        category: 'invitacion',
+        preview: 'assets/templates/invitaciones/invitacion2.png',
+        orientacion: 'vertical',
+        json: 'assets/templates/invitaciones/invitacion2.json'
+      },
+      {
+        id: 'inv3',
+        name: 'Invitacion graduación',
+        category: 'invitacion',
+        preview: 'assets/templates/invitaciones/invitacion3.png',
+        orientacion: 'vertical',
+        json: 'assets/templates/invitaciones/invitacion3.json'
       }
     ];
   }

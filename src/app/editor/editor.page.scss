@@ -43,7 +43,6 @@
   }
 
   input[type="color"] {
-    -webkit-appearance: none;
     border: 2px solid #ddd;
     width: 24px;
     height: 24px;
@@ -75,8 +74,16 @@
      background-size: 20px 20px;
   }
 
-   canvas {
-     background: #ffffff;
-     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-     border-radius: 4px;
-   }
+  canvas {
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-radius: 4px;
+  }
+
+  .logo {
+    width: auto;
+    height: 70px;
+    max-width: 120px;
+    object-fit: contain;
+    margin-right: 10px;
+  }

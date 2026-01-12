@@ -340,4 +340,36 @@ export class EditorPage implements AfterViewInit {
       this.currentFillColor = selectedObject.fill as string;
     }
   }
+
+  bringToFront() {
+  const obj = this.canvas.getActiveObject();
+  if (obj) {
+    this.canvas.bringObjectToFront(obj);
+    this.canvas.requestRenderAll();
+  }
+}
+
+sendToBack() {
+  const obj = this.canvas.getActiveObject();
+  if (obj) {
+    this.canvas.sendObjectToBack(obj);
+    this.canvas.requestRenderAll();
+  }
+}
+
+bringForward() {
+  const obj = this.canvas.getActiveObject();
+  if (obj) {
+    this.canvas.bringObjectForward(obj);
+    this.canvas.requestRenderAll();
+  }
+}
+
+sendBackwards() {
+  const obj = this.canvas.getActiveObject();
+  if (obj) {
+    this.canvas.sendObjectBackwards(obj);
+    this.canvas.requestRenderAll();
+  }
+}
 }

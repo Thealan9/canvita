@@ -1,11 +1,16 @@
 <ion-header class="ion-no-border">
   <div class="editor-toolbar">
     <div class="tool-group">
+      <img class="logo" src="assets/logo.jpeg" alt="Logo" />
+
       <ion-button class="btn-tool" fill="clear" color="dark" (click)="open()"
         >Abrir</ion-button
       >
       <ion-button class="btn-tool" fill="solid" color="primary" (click)="save()"
         >Guardar</ion-button
+      >
+      <ion-button class="btn-tool" fill="solid" color="secondary" (click)="saveAs()"
+        >Guardar como</ion-button
       >
       <ion-button (click)="presentExportMenu()" fill="outline">
         <ion-icon name="download-outline" slot="start"></ion-icon>
@@ -119,19 +124,44 @@
         fill="clear"
         color="warning"
         (click)="toggleLock()"
-        ><ion-icon
+      >
+        <ion-icon
           [name]="lockButtonText === 'Bloquear' ? 'lock-open-outline' : 'lock-closed-outline'"
           slot="start"
         ></ion-icon>
-        {{ lockButtonText }}</ion-button
-      >
+        {{ lockButtonText }}
+      </ion-button>
       <ion-button
         class="btn-tool"
         fill="clear"
         color="danger"
         (click)="delete()"
-        >Eliminar</ion-button
       >
+        <ion-icon name="trash-outline" slot="start"></ion-icon>
+        Eliminar
+      </ion-button>
+    </div>
+
+    <div *ngIf="selectedObjectType" class="layers-controls">
+      <ion-button fill="clear" color="primary" (click)="bringForward()">
+        <ion-icon name="chevron-up-circle-outline"></ion-icon>
+        Adelante
+      </ion-button>
+
+      <ion-button fill="clear" color="primary" (click)="sendBackwards()">
+        <ion-icon name="chevron-down-circle-outline"></ion-icon>
+        Detrás
+      </ion-button>
+
+      <ion-button fill="clear" color="secondary" (click)="bringToFront()">
+        <ion-icon name="arrow-up-outline"></ion-icon>
+        Al frente
+      </ion-button>
+
+      <ion-button fill="clear" color="secondary" (click)="sendToBack()">
+        <ion-icon name="arrow-down-outline"></ion-icon>
+        Al fondo
+      </ion-button>
     </div>
   </div>
 </ion-header>

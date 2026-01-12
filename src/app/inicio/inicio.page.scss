@@ -72,3 +72,23 @@
     color: #636e72; /* Gris medio-oscuro para mejor lectura */
     font-weight: 500;
   }
+
+  .header-action-bar {
+  display: flex;         /* Activa Flexbox */
+  align-items: center;    /* Alinea verticalmente al centro */
+  justify-content: flex-start; /* Alinea al inicio (izquierda) */
+  padding: 15px;         /* Espacio interno */
+  gap: 20px;             /* Espacio exacto entre el logo y el botón */
+  }
+
+.logo {
+  height: 60px;          /* Ajusté un poco el tamaño para que sea armónico */
+  width: auto;
+  object-fit: contain;
+}
+
+/* Ajuste del botón para quitarle el margin manual que tenía antes */
+.btn-tool {
+  margin: 0;
+  --border-radius: 8px;
+}
