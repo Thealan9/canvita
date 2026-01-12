@@ -4,7 +4,14 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://127.0.0.1:8000/api'
+  firebaseConfig: {
+  apiKey: "AIzaSyBK6QOerU5hxTAER3ou0DLC3jhah20L_f4",
+  authDomain: "canvita-94e47.firebaseapp.com",
+  projectId: "canvita-94e47",
+  storageBucket: "canvita-94e47.firebasestorage.app",
+  messagingSenderId: "30965744352",
+  appId: "1:30965744352:web:3ca66ee55d5d5046b90685"
+  }
 };
 
 /*

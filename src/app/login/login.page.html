@@ -1,0 +1,28 @@
+<ion-content class="ion-padding">
+  <div class="login-container">
+    <div class="header-section">
+      <img src="assets/logo.jpeg" alt="Logo" class="logo">
+      <h1 class="welcome-text">Bienvenido a Dezain</h1>
+      <p class="slogan">Diseño inteligente, resultados brillantes</p>
+    </div>
+
+    <div class="form-section">
+      <ion-item lines="full" class="ion-margin-bottom">
+        <ion-input type="email" [(ngModel)]="email" placeholder="ejemplo@correo.com"></ion-input>
+      </ion-item>
+
+      <ion-item lines="full" class="ion-margin-bottom">
+        <ion-input type="password" [(ngModel)]="pass" placeholder="Contraseña"></ion-input>
+      </ion-item>
+
+      <ion-button expand="block" (click)="onLogin()" class="ion-margin-top main-button">
+        Entrar
+        <ion-icon name="log-in-outline" slot="end"></ion-icon>
+      </ion-button>
+
+      <ion-button expand="block" fill="clear" routerLink="/register" class="register-link">
+        ¿No tienes cuenta? Regístrate aquí
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

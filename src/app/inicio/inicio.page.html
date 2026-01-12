@@ -1,6 +1,5 @@
 <ion-content class="gallery-content">
   <div class="header-action-bar">
-
     <ion-button
       class="btn-tool"
       fill="solid"
@@ -8,6 +7,11 @@
       (click)="openLocalProject()"
     >
       Abrir
+    </ion-button>
+
+    <ion-button (click)="logout()" color="danger" slot="end">
+      <ion-icon name="log-out-outline" slot="start"></ion-icon>
+      Salir
     </ion-button>
   </div>
   <h2 class="section-title">Nuevo lienzo en blanco</h2>

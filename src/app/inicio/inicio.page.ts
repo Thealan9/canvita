@@ -42,6 +42,11 @@ async openLocalProject() {
   this.router.navigate(['/editor']);
 }
 
+logout() {
+  localStorage.removeItem('user_session');
+  this.router.navigate(['/login'], { replaceUrl: true });
+}
+
 
   getTemplates() {
     return [

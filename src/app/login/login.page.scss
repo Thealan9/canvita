@@ -1,0 +1,72 @@
+// Contenedor principal centrado
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
+  width: 100%;
+  max-width: 450px; // Limita el ancho en pantallas grandes
+  margin: 0 auto;
+  padding: 20px;
+}
+
+// Sección del logo y textos
+.header-section {
+  text-align: center;
+  margin-bottom: 20px;
+
+  .logo {
+    width: 40%; // Responsivo: 40% del contenedor
+    max-width: 150px; // No crecerá más de esto
+    border-radius: 20px; // Opcional, por si tu logo es cuadrado
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .welcome-text {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin: 0;
+  }
+
+  .slogan {
+    font-size: 1rem;
+    color: var(--ion-color-medium);
+    margin-top: 8px;
+    font-style: italic;
+  }
+}
+
+// Sección del formulario
+.form-section {
+  width: 100%;
+
+  ion-item {
+    --background: transparent;
+    --padding-start: 0;
+    margin-bottom: 10px;
+  }
+
+  .main-button {
+    --border-radius: 12px;
+    height: 50px;
+    font-weight: 600;
+    margin-top: 30px;
+  }
+
+  .register-link {
+    font-size: 0.9rem;
+    margin-top: 15px;
+  }
+}
+
+// Ajuste para pantallas muy pequeñas (Móviles antiguos)
+@media (max-height: 600px) {
+  .header-section {
+    margin-bottom: 20px;
+    .logo { width: 80px; }
+    .welcome-text { font-size: 1.4rem; }
+  }
+}
