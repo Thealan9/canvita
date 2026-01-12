@@ -3,14 +3,18 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'index',
     pathMatch: 'full'
   },
-
   {
-    path: 'home',
+    path: 'index',
+    loadChildren: () => import('./inicio/inicio.module').then( m => m.InicioPageModule)
+  },
+  {
+    path: 'editor',
     loadChildren: () => import('./editor/editor.module').then( m => m.EditorPageModule)
   },
+
 
 
 

@@ -1,64 +1,134 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Diseñador</ion-title>
-  </ion-toolbar>
+<ion-header class="ion-no-border">
+  <div class="editor-toolbar">
+    <div class="tool-group">
+      <ion-button class="btn-tool" fill="clear" color="dark" (click)="open()"
+        >Abrir</ion-button>
+      <ion-button class="btn-tool" fill="solid" color="primary" (click)="save()"
+        >Guardar</ion-button
+      >
+      <ion-button
+        class="btn-tool"
+        fill="clear"
+        color="medium"
+        (click)="exportPNG()"
+        >
+          Exportar a PNG
+        </ion-button
+      >
+    </div>
+
+    <div class="tool-group">
+      <ion-button
+        class="btn-tool"
+        fill="outline"
+        color="dark"
+        (click)="addText()"
+        >+ Texto</ion-button
+      >
+      <ion-button
+        class="btn-tool"
+        fill="outline"
+        color="dark"
+        (click)="addImage()"
+        >+ Imagen</ion-button
+      >
+    </div>
+
+    <div class="tool-group">
+      <ion-select
+        class="compact-select"
+        interface="popover"
+        placeholder="Fuente"
+        (ionChange)="changeFont($event)"
+      >
+        <ion-select-option value="Arial">Arial</ion-select-option>
+
+        <ion-select-option value="Georgia">Georgia</ion-select-option>
+
+        <ion-select-option value="Times New Roman">Times</ion-select-option>
+
+        <ion-select-option value="Courier New">Courier</ion-select-option>
+
+        <ion-select-option value="Montserrat">Montserrat</ion-select-option>
+      </ion-select>
+
+      <ion-select
+        class="compact-select"
+        interface="popover"
+        placeholder="px"
+        (ionChange)="changeFontSize($event)"
+      >
+        <ion-select-option [value]="6">6 px</ion-select-option>
+
+        <ion-select-option [value]="8">8 px</ion-select-option>
+
+        <ion-select-option [value]="10">10 px</ion-select-option>
+
+        <ion-select-option [value]="12">12 px</ion-select-option>
+
+        <ion-select-option [value]="14">14 px</ion-select-option>
+
+        <ion-select-option [value]="16">16 px</ion-select-option>
+
+        <ion-select-option [value]="18">18 px</ion-select-option>
+
+        <ion-select-option [value]="24">24 px</ion-select-option>
+
+        <ion-select-option [value]="32">32 px</ion-select-option>
+
+        <ion-select-option [value]="48">48 px</ion-select-option>
+
+        <ion-select-option [value]="64">64 px</ion-select-option>
+
+        <ion-select-option [value]="80">80 px</ion-select-option>
+      </ion-select>
+    </div>
+
+    <div class="tool-group" style="gap: 15px">
+      <div class="color-wrapper">
+        <input type="color" (change)="changeColor($event)" value="#000000" />
+        <span>Objeto</span>
+      </div>
+      <div class="color-wrapper">
+        <input
+          type="color"
+          (change)="changeBackground($event)"
+          value="#ffffff"
+        />
+        <span>Fondo</span>
+      </div>
+    </div>
+
+    <div class="tool-group" style="border: none">
+
+      <ion-button
+        class="btn-tool"
+        fill="clear"
+        color="medium"
+        (click)="duplicate()"
+        >Duplicar</ion-button
+      >
+      <ion-button
+        class="btn-tool"
+        fill="clear"
+        color="warning"
+        (click)="toggleLock()"
+        >Bloquear</ion-button
+      >
+      <ion-button
+        class="btn-tool"
+        fill="clear"
+        color="danger"
+        (click)="delete()"
+        >Eliminar</ion-button
+      >
+    </div>
+  </div>
 </ion-header>
 
 <ion-content>
-
-  <!-- Barra de herramientas -->
-  <ion-grid>
-    <ion-row>
-      <ion-col
-        ><ion-button size="small" (click)="addText()"
-          >Texto</ion-button
-        ></ion-col
-      >
-      <ion-col>
-        <ion-button size="small" (click)="addImage()"
-          >Imagen</ion-button
-        ></ion-col
-      >
-      <ion-col
-        ><ion-button size="small" (click)="delete()"
-          >Eliminar</ion-button
-        ></ion-col
-      >
-    </ion-row>
-  </ion-grid>
-
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button (click)="open()">Abrir</ion-button>
-      <ion-button (click)="save()">Guardar</ion-button>
-      <ion-button (click)="saveAs()">Guardar como</ion-button>
-      <ion-button (click)="exportPNG()">Exportar PNG</ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-
-  <!-- Controles del objeto -->
-  <ion-item>
-    <ion-label>Color</ion-label>
-    <input type="color" (change)="changeColor($event)" />
-  </ion-item>
-
-  <ion-item>
-    <ion-label>Tamaño</ion-label>
-    <ion-range
-      min="10"
-      max="80"
-      step="1"
-      (ionChange)="changeFontSize($event)"
-    ></ion-range>
-  </ion-item>
-
-  <!-- Lienzo -->
-  <div style="text-align: center; margin-top: 10px">
-    <canvas
-      id="canvas"
-      width="350"
-      height="500"
-      style="border: 1px solid #ccc"
-    ></canvas>
+  <div class="canvas-container">
+    <canvas id="canvas"></canvas>
   </div>
 </ion-content>
+

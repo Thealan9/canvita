@@ -1,0 +1,40 @@
+<ion-content class="gallery-content">
+<ion-button class="btn-tool" fill="clear" color="dark" (click)="openLocalProject()"
+        >Abrir</ion-button>
+  <h2 class="section-title">Nuevo lienzo en blanco</h2>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6" size-md="4" size-lg="2" *ngFor="let t of blank">
+        <div class="template-card blank-card" (click)="openBlank(t.orientacion)">
+          <ion-icon name="add-circle-outline" style="font-size: 48px"></ion-icon>
+          <p>{{t.name}}</p>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <h2 class="section-title">Trípticos</h2>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6" size-md="4" size-lg="3" *ngFor="let t of tripticos">
+        <div class="template-card" (click)="openTemplate(t)">
+          <img [src]="t.preview" class="template-img">
+          <div class="card-label">{{t.name}}</div>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <h2 class="section-title">Invitaciones</h2>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6" size-md="4" size-lg="3" *ngFor="let t of invitaciones">
+        <div class="template-card" (click)="openTemplate(t)">
+          <img [src]="t.preview" class="template-img">
+          <div class="card-label">{{t.name}}</div>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+</ion-content>

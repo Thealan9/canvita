@@ -1,6 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { Directory, Filesystem } from '@capacitor/filesystem';
-import { Canvas, Textbox, Image as FabricImage } from 'fabric';
+import { Canvas, Textbox, Image as FabricImage, Point } from 'fabric';
 
 @Component({
   selector: 'app-editor',
@@ -13,7 +13,37 @@ export class EditorPage implements AfterViewInit {
   currentFile: FileSystemFileHandle | null = null;
 
   ngAfterViewInit() {
-    this.canvas = new Canvas('canvas');
+    const tipo = localStorage.getItem('tipeBlank');
+
+    let width = 500;
+    let height = 700;
+
+    if (tipo === 'horizontal') {
+      width = 1100;
+      height = 850;
+    }
+
+    this.canvas = new Canvas('canvas', {
+      width: width,
+      height: height,
+      backgroundColor: '#ffffff',
+    });
+    if (localStorage.getItem('action') === 'open_file') {
+      localStorage.removeItem('action');
+      this.open();
+    } else {
+      const temp = localStorage.getItem('template');
+      if (temp) {
+        const template = JSON.parse(temp);
+        fetch(template.json)
+          .then((r) => r.text())
+          .then((json) => {
+            this.canvas.loadFromJSON(json, () => {
+              this.canvas.requestRenderAll();
+            });
+          });
+      }
+    }
   }
 
   addText() {
@@ -60,7 +90,7 @@ export class EditorPage implements AfterViewInit {
     const obj: any = this.canvas.getActiveObject();
     if (obj && obj.set) {
       obj.set('fill', event.target.value);
-      this.canvas.renderAll();
+      this.canvas.requestRenderAll();
     }
   }
 
@@ -68,23 +98,47 @@ export class EditorPage implements AfterViewInit {
     const obj: any = this.canvas.getActiveObject();
     if (obj && obj.type === 'textbox') {
       obj.set('fontSize', event.detail.value);
-      this.canvas.renderAll();
+      this.canvas.requestRenderAll();
     }
   }
+
+  changeBackground(event: any) {
+    this.canvas.backgroundColor = event.target.value;
+    this.canvas.requestRenderAll();
+  }
+
+  // async save() {
+  //   if (!this.currentFile) {
+  //     return this.saveAs();
+  //   }
+
+  //   const json = JSON.stringify(this.canvas.toJSON());
+
+  //   const writable = await this.currentFile.createWritable();
+  //   await writable.write(json);
+  //   await writable.close();
+
+  //   alert('Guardado');
+  // }
 
   async save() {
     if (!this.currentFile) {
       return this.saveAs();
     }
 
-    const json = JSON.stringify(this.canvas.toJSON());
+    const json = this.canvas.toJSON();
+    json.width = this.canvas.getWidth();
+    json.height = this.canvas.getHeight();
+
+    const stringJson = JSON.stringify(json);
 
     const writable = await this.currentFile.createWritable();
-    await writable.write(json);
+    await writable.write(stringJson);
     await writable.close();
 
     alert('Guardado');
   }
+
   async saveAs() {
     this.currentFile = await (window as any).showSaveFilePicker({
       suggestedName: 'diseño.json',
@@ -99,38 +153,130 @@ export class EditorPage implements AfterViewInit {
     await this.save();
   }
 
+  // async open() {
+  //   const [fileHandle] = await (window as any).showOpenFilePicker({
+  //     types: [
+  //       {
+  //         description: 'Proyecto',
+  //         accept: { 'application/json': ['.json'] },
+  //       },
+  //     ],
+  //   });
+
+  //   this.currentFile = fileHandle;
+
+  //   const file = await fileHandle.getFile();
+  //   const text = await file.text();
+
+  //   this.canvas.loadFromJSON(text, () => {
+  //     this.canvas.requestRenderAll();
+  //   });
+  // }
   async open() {
-    const [fileHandle] = await (window as any).showOpenFilePicker({
-      types: [
-        {
-          description: 'Proyecto',
-          accept: { 'application/json': ['.json'] },
-        },
-      ],
-    });
+    try {
+      const [fileHandle] = await (window as any).showOpenFilePicker({
+        types: [
+          {
+            description: 'Proyecto',
+            accept: { 'application/json': ['.json'] },
+          },
+        ],
+      });
 
-    this.currentFile = fileHandle;
+      this.currentFile = fileHandle;
+      const file = await fileHandle.getFile();
+      const text = await file.text();
+      const projectData = JSON.parse(text);
+      console.log(projectData);
 
-    const file = await fileHandle.getFile();
-    const text = await file.text();
+      if (projectData.width && projectData.height) {
+        this.canvas.setDimensions({
+          width: projectData.width,
+          height: projectData.height,
+        });
+      } else {
+        const tipo = localStorage.getItem('tipeBlank');
+        if (tipo === 'horizontal') {
+          this.canvas.setDimensions({ width: 1100, height: 850 });
+        } else {
+          this.canvas.setDimensions({ width: 500, height: 700 });
+        }
+      }
 
-    console.log('JSON:', text);
+      this.canvas.loadFromJSON(projectData, () => {
+        this.canvas.requestRenderAll();
 
-    this.canvas.loadFromJSON(text, () => {
-      this.canvas.requestRenderAll();
-    });
+        const orientacion =
+          this.canvas.getWidth() > this.canvas.getHeight()
+            ? 'horizontal'
+            : 'vertical';
+        localStorage.setItem('tipeBlank', orientacion);
+      });
+    } catch (err) {
+      console.error('Error al abrir:', err);
+    }
   }
 
   exportPNG() {
     const data = this.canvas.toDataURL({
       format: 'png',
       quality: 1,
-      multiplier: 2,
+      multiplier: 3,
     });
 
     const link = document.createElement('a');
     link.href = data;
     link.download = 'diseño.png';
     link.click();
+  }
+
+  toggleLock() {
+    const obj: any = this.canvas.getActiveObject();
+    if (!obj) {
+      console.warn('Selecciona un objeto para bloquear/desbloquear');
+      return;
+    }
+
+    const isLocked = obj.lockMovementX;
+
+    const newState = !isLocked;
+
+    obj.set({
+      lockMovementX: newState,
+      lockMovementY: newState,
+      lockScalingX: newState,
+      lockScalingY: newState,
+      lockRotation: newState,
+      editable: !newState,
+      hasControls: !newState,
+    });
+
+    obj.opacity = newState ? 0.7 : 1;
+
+    this.canvas.requestRenderAll();
+  }
+
+  async duplicate() {
+    const obj = this.canvas.getActiveObject();
+    if (!obj) return;
+
+    const cloned = await obj.clone();
+
+    cloned.set({
+      left: obj.left! + 20,
+      top: obj.top! + 20,
+    });
+
+    this.canvas.add(cloned);
+    this.canvas.setActiveObject(cloned);
+    this.canvas.requestRenderAll();
+  }
+
+  changeFont(event: any) {
+    const obj: any = this.canvas.getActiveObject();
+    if (!obj || obj.type !== 'textbox') return;
+
+    obj.set('fontFamily', event.detail.value);
+    this.canvas.requestRenderAll();
   }
 }
