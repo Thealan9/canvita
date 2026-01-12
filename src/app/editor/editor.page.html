@@ -36,6 +36,7 @@
         interface="popover"
         placeholder="Fuente"
         (ionChange)="changeFont($event)"
+        [(ngModel)]="currentFontFamily"
       >
         <ion-select-option value="Arial">Arial</ion-select-option>
 
@@ -53,6 +54,7 @@
         interface="popover"
         placeholder="px"
         (ionChange)="changeFontSize($event)"
+        [(ngModel)]="currentFontSize"
       >
         <ion-select-option [value]="6">6 px</ion-select-option>
 
@@ -82,7 +84,12 @@
 
     <div class="tool-group" style="gap: 15px">
       <div class="color-wrapper" *ngIf="selectedObjectType === 'textbox'">
-        <input type="color" (change)="changeColor($event)" value="#000000" />
+        <input
+          type="color"
+          [(ngModel)]="currentFillColor"
+          (input)="changeColor($event)"
+          value="#000000"
+        />
         <span>Color</span>
       </div>
       <div class="color-wrapper">
@@ -95,11 +102,15 @@
       </div>
     </div>
 
-    <div class="tool-group" style="border: none" *ngIf="selectedObjectType === 'textbox' || selectedObjectType === 'image'">
+    <div
+      class="tool-group"
+      style="border: none"
+      *ngIf="selectedObjectType === 'textbox' || selectedObjectType === 'image'"
+    >
       <ion-button
         class="btn-tool"
         fill="clear"
-        color="medium"
+        color="dark"
         (click)="duplicate()"
         >Duplicar</ion-button
       >
@@ -108,7 +119,11 @@
         fill="clear"
         color="warning"
         (click)="toggleLock()"
-        >Bloquear</ion-button
+        ><ion-icon
+          [name]="lockButtonText === 'Bloquear' ? 'lock-open-outline' : 'lock-closed-outline'"
+          slot="start"
+        ></ion-icon>
+        {{ lockButtonText }}</ion-button
       >
       <ion-button
         class="btn-tool"

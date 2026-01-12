@@ -13,6 +13,10 @@ export class EditorPage implements AfterViewInit {
   canvas!: Canvas;
   currentFile: FileSystemFileHandle | null = null;
   selectedObjectType: string | null = null;
+  currentFontSize: number = 24;
+  currentFontFamily: string = 'Arial';
+  currentFillColor: string = '#000000';
+  lockButtonText: string = 'Bloquear';
 
   constructor(private actionSheetCtrl: ActionSheetController) {}
 
@@ -107,7 +111,9 @@ export class EditorPage implements AfterViewInit {
   changeFontSize(event: any) {
     const obj: any = this.canvas.getActiveObject();
     if (obj && obj.type === 'textbox') {
-      obj.set('fontSize', event.detail.value);
+      const newVal = parseInt(event.detail.value);
+      obj.set('fontSize', newVal);
+      this.currentFontSize = newVal;
       this.canvas.requestRenderAll();
     }
   }
@@ -226,11 +232,32 @@ export class EditorPage implements AfterViewInit {
   }
 
   exportAs(format: 'png' | 'jpeg' | 'webp') {
+    const objects = this.canvas.getObjects();
+    const lockedObjects: any[] = [];
+
+    objects.forEach((obj) => {
+      if (obj.lockMovementX) {
+        lockedObjects.push({
+          item: obj,
+          originalOpacity: obj.opacity,
+        });
+        obj.set('opacity', 1);
+      }
+    });
+
+    this.canvas.renderAll();
+
     const data = this.canvas.toDataURL({
       format: format,
       quality: 0.9,
       multiplier: 3,
     });
+
+    lockedObjects.forEach((data) => {
+      data.item.set('opacity', data.originalOpacity);
+    });
+
+    this.canvas.renderAll();
 
     const link = document.createElement('a');
     link.href = data;
@@ -253,13 +280,9 @@ export class EditorPage implements AfterViewInit {
 
   toggleLock() {
     const obj: any = this.canvas.getActiveObject();
-    if (!obj) {
-      console.warn('Selecciona un objeto para bloquear/desbloquear');
-      return;
-    }
+    if (!obj) return;
 
     const isLocked = obj.lockMovementX;
-
     const newState = !isLocked;
 
     obj.set({
@@ -273,6 +296,8 @@ export class EditorPage implements AfterViewInit {
     });
 
     obj.opacity = newState ? 0.7 : 1;
+
+    this.lockButtonText = newState ? 'Desbloquear' : 'Bloquear';
 
     this.canvas.requestRenderAll();
   }
@@ -302,10 +327,17 @@ export class EditorPage implements AfterViewInit {
   }
 
   updateUI(e: any) {
-  const selectedObject = e.selected[0];
-  // Fabric llama 'textbox' al texto y 'image' a las imágenes
-  this.selectedObjectType = selectedObject.type;
-}
+    const selectedObject = e.selected[0];
+    this.selectedObjectType = selectedObject.type;
+    this.lockButtonText = selectedObject.lockMovementX
+      ? 'Desbloquear'
+      : 'Bloquear';
 
+    if (selectedObject.type === 'textbox') {
 
+      this.currentFontSize = selectedObject.fontSize;
+      this.currentFontFamily = selectedObject.fontFamily;
+      this.currentFillColor = selectedObject.fill as string;
+    }
+  }
 }
