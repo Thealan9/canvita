@@ -381,104 +381,106 @@ async open() {
 }
 
 //web
-// exportAs(format: 'png' | 'jpeg' | 'webp') {
+ exportAs(format: 'png' | 'jpeg' | 'webp') {
+   const currentZoom = this.canvas.getZoom();
+   const currentWidth = this.canvas.getWidth();
+   const currentHeight = this.canvas.getHeight();
+
+   this.canvas.setZoom(1);
+
+   const realWidth = currentWidth / currentZoom;
+   const realHeight = currentHeight / currentZoom;
+
+   this.canvas.setDimensions({
+     width: realWidth,
+      height: realHeight
+   });
+
+   const objects = this.canvas.getObjects();
+   const lockedObjects: any[] = [];
+   objects.forEach((obj) => {
+     if (obj.lockMovementX) {
+       lockedObjects.push({ item: obj, originalOpacity: obj.opacity });
+       obj.set('opacity', 1);
+     }
+   });
+
+   this.canvas.renderAll();
+
+
+   const data = this.canvas.toDataURL({
+     format: format,
+     quality: 1,
+     multiplier: 3,
+   });
+
+
+   lockedObjects.forEach((data) => {
+     data.item.set('opacity', data.originalOpacity);
+   });
+
+   this.canvas.setZoom(currentZoom);
+   this.canvas.setDimensions({
+     width: currentWidth,
+     height: currentHeight
+   });
+
+   this.canvas.renderAll();
+
+   const link = document.createElement('a');
+   link.href = data;
+   link.download = `diseño.${format}`;
+   link.click();
+ }
+
+//movil
+// async exportAs(format: 'png' | 'jpeg' | 'webp') {
+
 //   const currentZoom = this.canvas.getZoom();
 //   const currentWidth = this.canvas.getWidth();
 //   const currentHeight = this.canvas.getHeight();
-
 //   this.canvas.setZoom(1);
-
 //   const realWidth = currentWidth / currentZoom;
 //   const realHeight = currentHeight / currentZoom;
-
-//   this.canvas.setDimensions({
-//     width: realWidth,
-//     height: realHeight
-//   });
-
-//   const objects = this.canvas.getObjects();
-//   const lockedObjects: any[] = [];
-//   objects.forEach((obj) => {
-//     if (obj.lockMovementX) {
-//       lockedObjects.push({ item: obj, originalOpacity: obj.opacity });
-//       obj.set('opacity', 1);
-//     }
-//   });
+//   this.canvas.setDimensions({ width: realWidth, height: realHeight });
 
 //   this.canvas.renderAll();
 
-
-//   const data = this.canvas.toDataURL({
+//   const dataUrl = this.canvas.toDataURL({
 //     format: format,
 //     quality: 1,
 //     multiplier: 3,
 //   });
 
-
-//   lockedObjects.forEach((data) => {
-//     data.item.set('opacity', data.originalOpacity);
-//   });
-
 //   this.canvas.setZoom(currentZoom);
-//   this.canvas.setDimensions({
-//     width: currentWidth,
-//     height: currentHeight
-//   });
-
+//   this.canvas.setDimensions({ width: currentWidth, height: currentHeight });
 //   this.canvas.renderAll();
 
-//   const link = document.createElement('a');
-//   link.href = data;
-//   link.download = `diseño.${format}`;
-//   link.click();
+//   const fileName = `diseno_${Date.now()}.${format}`;
+
+//   try {
+
+//     const savedFile = await Filesystem.writeFile({
+//       path: fileName,
+//       data: dataUrl,
+//       directory: Directory.Cache
+//     });
+
+
+//     await Share.share({
+//       title: 'Exportar Diseño',
+//       text: 'Aquí tienes tu diseño',
+//       url: savedFile.uri,
+//       dialogTitle: 'Compartir o Guardar imagen',
+//     });
+
+//   } catch (error) {
+//     const link = document.createElement('a');
+//     link.href = dataUrl;
+//     link.download = fileName;
+//     link.click();
+//   }
 // }
-async exportAs(format: 'png' | 'jpeg' | 'webp') {
-
-  const currentZoom = this.canvas.getZoom();
-  const currentWidth = this.canvas.getWidth();
-  const currentHeight = this.canvas.getHeight();
-  this.canvas.setZoom(1);
-  const realWidth = currentWidth / currentZoom;
-  const realHeight = currentHeight / currentZoom;
-  this.canvas.setDimensions({ width: realWidth, height: realHeight });
-
-  this.canvas.renderAll();
-
-  const dataUrl = this.canvas.toDataURL({
-    format: format,
-    quality: 1,
-    multiplier: 3,
-  });
-
-  this.canvas.setZoom(currentZoom);
-  this.canvas.setDimensions({ width: currentWidth, height: currentHeight });
-  this.canvas.renderAll();
-
-  const fileName = `diseno_${Date.now()}.${format}`;
-
-  try {
-
-    const savedFile = await Filesystem.writeFile({
-      path: fileName,
-      data: dataUrl,
-      directory: Directory.Cache
-    });
-
-
-    await Share.share({
-      title: 'Exportar Diseño',
-      text: 'Aquí tienes tu diseño',
-      url: savedFile.uri,
-      dialogTitle: 'Compartir o Guardar imagen',
-    });
-
-  } catch (error) {
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = fileName;
-    link.click();
-  }
-}
 
   async presentExportMenu() {
     const actionSheet = await this.actionSheetCtrl.create({
