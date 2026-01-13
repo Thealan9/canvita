@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.justenjoy.app',
-  appName: 'justenjoy',
+  appId: 'com.dezain.app',
+  appName: 'dezain',
   webDir: 'www'
 };
 

@@ -1,4 +1,4 @@
-package com.justenjoy.app;
+package com.dezain.app;
 
 import com.getcapacitor.BridgeActivity;
 

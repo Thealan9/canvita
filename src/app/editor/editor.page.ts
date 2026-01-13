@@ -1,7 +1,9 @@
 import { Component, AfterViewInit } from '@angular/core';
-import { Directory, Filesystem } from '@capacitor/filesystem';
-import { ActionSheetController } from '@ionic/angular';
+import { Directory, Filesystem,Encoding } from '@capacitor/filesystem';
+import { ActionSheetController, NavController, Platform, ToastController } from '@ionic/angular';
 import { Canvas, Textbox, Image as FabricImage, Point } from 'fabric';
+import { Subscription } from 'rxjs';
+import { Share } from '@capacitor/share';
 
 @Component({
   selector: 'app-editor',
@@ -17,8 +19,31 @@ export class EditorPage implements AfterViewInit {
   currentFontFamily: string = 'Arial';
   currentFillColor: string = '#000000';
   lockButtonText: string = 'Bloquear';
+  private backButtonSub!: Subscription;
 
-  constructor(private actionSheetCtrl: ActionSheetController) {}
+  constructor(
+    private actionSheetCtrl: ActionSheetController,
+    private platform: Platform,
+    private navCtrl: NavController,
+    private toastCtrl: ToastController,) {}
+
+  ionViewDidEnter() {
+    this.backButtonSub = this.platform.backButton.subscribeWithPriority(10, () => {
+    const activeObject = this.canvas.getActiveObject();
+
+    if (activeObject) {
+      this.canvas.discardActiveObject();
+      this.canvas.requestRenderAll();
+      this.selectedObjectType = null;
+      } else {
+        this.navCtrl.back();
+      }
+    });
+  }
+
+  ionViewWillLeave() {
+    this.backButtonSub.unsubscribe();
+  }
 
   ngAfterViewInit() {
     const tipo = localStorage.getItem('tipeBlank');
@@ -207,16 +232,47 @@ async save() {
   this.canvas.setZoom(currentZoom);
   this.canvas.requestRenderAll();
 
+  if (!this.currentFile) {
+    const nuevoNombre = `proyecto_${Date.now()}.json`;
+    this.currentFile = { name: nuevoNombre } as any;
+  }
+
+  const fileName = (this.currentFile as any).name;
+
+  if (this.platform.is('hybrid')) {
+    try {
+      const result = await Filesystem.writeFile({
+        path: fileName,
+        data: stringJson,
+        directory: Directory.Cache,
+        encoding: Encoding.UTF8
+      });
+
+      await Share.share({
+        title: 'Guardar Proyecto',
+        text: 'Archivo de proyecto Dezain',
+        url: result.uri,
+        dialogTitle: '¿Dónde quieres guardar tu proyecto?',
+      });
+
+      this.presentToast(`Listo para guardar como: ${fileName}`);
+      return;
+    } catch (err) {
+      console.error(err);
+      this.presentToast("Error al intentar guardar");
+      return;
+    }
+  }
 
   if (this.currentFile && (this.currentFile as any).createWritable) {
     try {
       const writable = await (this.currentFile as any).createWritable();
       await writable.write(stringJson);
       await writable.close();
-      console.log('Sobrescrito con éxito');
+      this.presentToast("Sobrescrito con éxito");
       return;
     } catch (err) {
-      console.warn('No se pudo sobrescribir, procediendo a descargar...', err);
+      console.warn(err);
     }
   }
 
@@ -224,29 +280,11 @@ async save() {
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-
-
-  const fileName = this.currentFile ? (this.currentFile as any).name : 'mi_proyecto.json';
   link.download = fileName;
-
   link.click();
   window.URL.revokeObjectURL(url);
-  console.log('Archivo descargado (Nueva versión)');
+  this.presentToast("Descargado exitosamente");
 }
-
-  async saveAs() {
-    this.currentFile = await (window as any).showSaveFilePicker({
-      suggestedName: 'diseño.json',
-      types: [
-        {
-          description: 'Proyecto',
-          accept: { 'application/json': ['.json'] },
-        },
-      ],
-    });
-
-    await this.save();
-  }
 //web
 //   async open() {
 //   try {
@@ -342,57 +380,104 @@ async open() {
   input.click();
 }
 
+//web
+// exportAs(format: 'png' | 'jpeg' | 'webp') {
+//   const currentZoom = this.canvas.getZoom();
+//   const currentWidth = this.canvas.getWidth();
+//   const currentHeight = this.canvas.getHeight();
 
-exportAs(format: 'png' | 'jpeg' | 'webp') {
+//   this.canvas.setZoom(1);
+
+//   const realWidth = currentWidth / currentZoom;
+//   const realHeight = currentHeight / currentZoom;
+
+//   this.canvas.setDimensions({
+//     width: realWidth,
+//     height: realHeight
+//   });
+
+//   const objects = this.canvas.getObjects();
+//   const lockedObjects: any[] = [];
+//   objects.forEach((obj) => {
+//     if (obj.lockMovementX) {
+//       lockedObjects.push({ item: obj, originalOpacity: obj.opacity });
+//       obj.set('opacity', 1);
+//     }
+//   });
+
+//   this.canvas.renderAll();
+
+
+//   const data = this.canvas.toDataURL({
+//     format: format,
+//     quality: 1,
+//     multiplier: 3,
+//   });
+
+
+//   lockedObjects.forEach((data) => {
+//     data.item.set('opacity', data.originalOpacity);
+//   });
+
+//   this.canvas.setZoom(currentZoom);
+//   this.canvas.setDimensions({
+//     width: currentWidth,
+//     height: currentHeight
+//   });
+
+//   this.canvas.renderAll();
+
+//   const link = document.createElement('a');
+//   link.href = data;
+//   link.download = `diseño.${format}`;
+//   link.click();
+// }
+async exportAs(format: 'png' | 'jpeg' | 'webp') {
+
   const currentZoom = this.canvas.getZoom();
   const currentWidth = this.canvas.getWidth();
   const currentHeight = this.canvas.getHeight();
-
   this.canvas.setZoom(1);
-
   const realWidth = currentWidth / currentZoom;
   const realHeight = currentHeight / currentZoom;
-
-  this.canvas.setDimensions({
-    width: realWidth,
-    height: realHeight
-  });
-
-  const objects = this.canvas.getObjects();
-  const lockedObjects: any[] = [];
-  objects.forEach((obj) => {
-    if (obj.lockMovementX) {
-      lockedObjects.push({ item: obj, originalOpacity: obj.opacity });
-      obj.set('opacity', 1);
-    }
-  });
+  this.canvas.setDimensions({ width: realWidth, height: realHeight });
 
   this.canvas.renderAll();
 
-
-  const data = this.canvas.toDataURL({
+  const dataUrl = this.canvas.toDataURL({
     format: format,
     quality: 1,
     multiplier: 3,
   });
 
-
-  lockedObjects.forEach((data) => {
-    data.item.set('opacity', data.originalOpacity);
-  });
-
   this.canvas.setZoom(currentZoom);
-  this.canvas.setDimensions({
-    width: currentWidth,
-    height: currentHeight
-  });
-
+  this.canvas.setDimensions({ width: currentWidth, height: currentHeight });
   this.canvas.renderAll();
 
-  const link = document.createElement('a');
-  link.href = data;
-  link.download = `diseño.${format}`;
-  link.click();
+  const fileName = `diseno_${Date.now()}.${format}`;
+
+  try {
+
+    const savedFile = await Filesystem.writeFile({
+      path: fileName,
+      data: dataUrl,
+      directory: Directory.Cache
+    });
+
+
+    await Share.share({
+      title: 'Exportar Diseño',
+      text: 'Aquí tienes tu diseño',
+      url: savedFile.uri,
+      dialogTitle: 'Compartir o Guardar imagen',
+    });
+
+  } catch (error) {
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = fileName;
+    link.click();
+  }
 }
 
   async presentExportMenu() {
@@ -502,4 +587,13 @@ sendBackwards() {
     this.canvas.requestRenderAll();
   }
 }
+async presentToast(msg: string) {
+    const toast = await this.toastCtrl.create({
+      message: msg,
+      duration: 2000,
+      color: 'warning',
+      position: 'bottom'
+    });
+    toast.present();
+  }
 }

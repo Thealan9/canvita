@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Platform } from '@ionic/angular';
 import { IonContent, IonButton } from "@ionic/angular/standalone";
+import { App } from '@capacitor/app';
 
 @Component({
   selector: 'app-inicio',
@@ -14,7 +16,15 @@ export class InicioPage implements OnInit {
   invitaciones: any[] = [];
   blank: any[] = [];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router,private platform: Platform) {
+  this.platform.ready().then(() => {
+    this.platform.backButton.subscribeWithPriority(1, () => {
+      if (window.location.pathname === '/login' || window.location.pathname === '/index') {
+        App.exitApp();
+      }
+    });
+  });
+}
 
   ngOnInit() {
     const all = this.getTemplates();
