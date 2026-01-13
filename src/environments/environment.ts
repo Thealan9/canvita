@@ -5,12 +5,13 @@
 export const environment = {
   production: false,
   firebaseConfig: {
-  apiKey: "AIzaSyBK6QOerU5hxTAER3ou0DLC3jhah20L_f4",
-  authDomain: "canvita-94e47.firebaseapp.com",
-  projectId: "canvita-94e47",
-  storageBucket: "canvita-94e47.firebasestorage.app",
-  messagingSenderId: "30965744352",
-  appId: "1:30965744352:web:3ca66ee55d5d5046b90685"
+  apiKey: "AIzaSyBxBTeAf49RnKBe0hOMVYkgxfnHRZ8o5wM",
+  authDomain: "project-2532448567738619328.firebaseapp.com",
+  projectId: "project-2532448567738619328",
+  storageBucket: "project-2532448567738619328.firebasestorage.app",
+  messagingSenderId: "393816885776",
+  appId: "1:393816885776:web:31954787b965dac6b91895",
+  measurementId: "G-N26L5W3L7Q"
   }
 };
 
