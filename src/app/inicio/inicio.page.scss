@@ -3,18 +3,16 @@
     color: #2d3436;
   }
 
-  /* Títulos de sección con texto oscuro */
   .section-title {
     font-size: 1.4rem;
     font-weight: 700;
     margin: 25px 0 10px 15px;
-    color: #2d3436; /* Gris muy oscuro casi negro */
+    color: #2d3436;
     letter-spacing: 0.5px;
     border-left: 4px solid #3880ff;
     padding-left: 12px;
   }
 
-  /* Tarjetas blancas con sombras suaves */
   .template-card {
     background: #ffffff;
     border-radius: 12px;
@@ -22,26 +20,23 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
     margin: 8px;
-    /* Borde sutil para definir la tarjeta en fondo claro */
     border: 1px solid #e1e4e8;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   }
 
   .template-card:hover {
     transform: translateY(-8px);
-    /* Sombra más pronunciada al pasar el mouse */
     box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
     border-color: #3880ff;
   }
 
-  /* Estilo para las plantillas en blanco */
   .blank-card {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 180px;
-    background: #f0f5ff; /* Azul muy pálido */
+    background: #f0f5ff;
     border: 2px dashed #3880ff;
   }
 
@@ -56,7 +51,6 @@
     margin: 0;
   }
 
-  /* Imagen de vista previa (fondo neutro por si la imagen tiene transparencia) */
   .template-img {
     height: 140px;
     object-fit: cover;
@@ -64,30 +58,28 @@
     background: #f1f2f6;
   }
 
-  /* Texto de la tarjeta en gris oscuro */
   .card-label {
     padding: 12px;
     font-size: 0.9rem;
     text-align: center;
-    color: #636e72; /* Gris medio-oscuro para mejor lectura */
+    color: #636e72;
     font-weight: 500;
   }
 
   .header-action-bar {
-  display: flex;         /* Activa Flexbox */
-  align-items: center;    /* Alinea verticalmente al centro */
-  justify-content: flex-start; /* Alinea al inicio (izquierda) */
-  padding: 15px;         /* Espacio interno */
-  gap: 20px;             /* Espacio exacto entre el logo y el botón */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 15px;
+  gap: 20px;
   }
 
 .logo {
-  height: 60px;          /* Ajusté un poco el tamaño para que sea armónico */
+  height: 60px;
   width: auto;
   object-fit: contain;
 }
 
-/* Ajuste del botón para quitarle el margin manual que tenía antes */
 .btn-tool {
   margin: 0;
   --border-radius: 8px;

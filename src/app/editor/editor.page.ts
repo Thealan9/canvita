@@ -73,26 +73,23 @@ fitCanvasToScreen() {
   const container = document.querySelector('.canvas-area');
   if (!container || !this.canvas) return;
 
-  // 1. Determinar el tamaño REAL (base) del diseño
-  // Si no lo tenemos guardado, lo calculamos revirtiendo el zoom actual
   const currentZoom = this.canvas.getZoom();
   const baseWidth = this.canvas.getWidth() / currentZoom;
   const baseHeight = this.canvas.getHeight() / currentZoom;
 
-  // 2. Medir el espacio disponible en el dispositivo ahora mismo
+
   const containerWidth = container.clientWidth;
   const containerHeight = container.clientHeight;
 
-  // 3. Calcular la escala ideal (usamos 0.85 para dejar un margen elegante)
+
   const scale = Math.min(
     (containerWidth * 0.85) / baseWidth,
     (containerHeight * 0.85) / baseHeight
   );
 
-  // 4. RESETEAR TODO antes de aplicar lo nuevo
-  this.canvas.setZoom(1); // Reset de escala interna
 
-  // 5. APLICAR las nuevas dimensiones visuales y el zoom
+  this.canvas.setZoom(1);
+
   this.canvas.setDimensions({
     width: baseWidth * scale,
     height: baseHeight * scale
@@ -164,13 +161,38 @@ fitCanvasToScreen() {
     this.canvas.requestRenderAll();
   }
 
- async save() {
-  if (!this.currentFile) {
-    return this.saveAs();
-  }
+  //web
+//  async save() {
+//   if (!this.currentFile) {
+//     return this.saveAs();
+//   }
 
+//   const currentZoom = this.canvas.getZoom();
+
+//   this.canvas.setZoom(1);
+
+//   const realWidth = this.canvas.getWidth() / currentZoom;
+//   const realHeight = this.canvas.getHeight() / currentZoom;
+
+//   const json = this.canvas.toJSON();
+//   json.width = realWidth;
+//   json.height = realHeight;
+
+//   const stringJson = JSON.stringify(json);
+
+//   this.canvas.setZoom(currentZoom);
+//   this.canvas.requestRenderAll();
+
+//   const writable = await this.currentFile.createWritable();
+//   await writable.write(stringJson);
+//   await writable.close();
+
+//   console.log('Guardado con éxito con dimensiones:', realWidth, 'x', realHeight);
+// }
+
+// movil
+async save() {
   const currentZoom = this.canvas.getZoom();
-
   this.canvas.setZoom(1);
 
   const realWidth = this.canvas.getWidth() / currentZoom;
@@ -185,11 +207,31 @@ fitCanvasToScreen() {
   this.canvas.setZoom(currentZoom);
   this.canvas.requestRenderAll();
 
-  const writable = await this.currentFile.createWritable();
-  await writable.write(stringJson);
-  await writable.close();
 
-  console.log('Guardado con éxito con dimensiones:', realWidth, 'x', realHeight);
+  if (this.currentFile && (this.currentFile as any).createWritable) {
+    try {
+      const writable = await (this.currentFile as any).createWritable();
+      await writable.write(stringJson);
+      await writable.close();
+      console.log('Sobrescrito con éxito');
+      return;
+    } catch (err) {
+      console.warn('No se pudo sobrescribir, procediendo a descargar...', err);
+    }
+  }
+
+  const blob = new Blob([stringJson], { type: 'application/json' });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+
+
+  const fileName = this.currentFile ? (this.currentFile as any).name : 'mi_proyecto.json';
+  link.download = fileName;
+
+  link.click();
+  window.URL.revokeObjectURL(url);
+  console.log('Archivo descargado (Nueva versión)');
 }
 
   async saveAs() {
@@ -205,47 +247,101 @@ fitCanvasToScreen() {
 
     await this.save();
   }
+//web
+//   async open() {
+//   try {
+//     const [fileHandle] = await (window as any).showOpenFilePicker({
+//       types: [{
+//         description: 'Proyecto',
+//         accept: { 'application/json': ['.json'] },
+//       }],
+//     });
 
-  async open() {
-  try {
-    const [fileHandle] = await (window as any).showOpenFilePicker({
-      types: [{
-        description: 'Proyecto',
-        accept: { 'application/json': ['.json'] },
-      }],
-    });
-
-    this.currentFile = fileHandle;
-    const file = await fileHandle.getFile();
-    const text = await file.text();
-    const projectData = JSON.parse(text);
+//     this.currentFile = fileHandle;
+//     const file = await fileHandle.getFile();
+//     const text = await file.text();
+//     const projectData = JSON.parse(text);
 
 
-    if (projectData.width && projectData.height) {
+//     if (projectData.width && projectData.height) {
 
-      this.canvas.setZoom(1);
+//       this.canvas.setZoom(1);
 
-      this.canvas.setDimensions({
-        width: projectData.width,
-        height: projectData.height,
-      });
+//       this.canvas.setDimensions({
+//         width: projectData.width,
+//         height: projectData.height,
+//       });
 
-      const orientacion = projectData.width > projectData.height ? 'horizontal' : 'vertical';
-      localStorage.setItem('tipeBlank', orientacion);
-    }
+//       const orientacion = projectData.width > projectData.height ? 'horizontal' : 'vertical';
+//       localStorage.setItem('tipeBlank', orientacion);
+//     }
 
-    this.canvas.loadFromJSON(projectData).then(() => {
-      this.canvas.requestRenderAll();
+//     this.canvas.loadFromJSON(projectData).then(() => {
+//       this.canvas.requestRenderAll();
 
-      setTimeout(() => {
-        this.fitCanvasToScreen();
-      }, 300);
-    });
+//       setTimeout(() => {
+//         this.fitCanvasToScreen();
+//       }, 300);
+//     });
 
-  } catch (err) {
-    console.error('Error al abrir:', err);
-  }
+//   } catch (err) {
+//     console.error('Error al abrir:', err);
+//   }
+// }
+
+async open() {
+
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+
+  input.onchange = (event: any) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    this.currentFile = { name: file.name } as any;
+    const reader = new FileReader();
+
+    reader.onload = (f: any) => {
+      try {
+        const projectData = JSON.parse(f.target.result);
+
+
+        if (projectData.width && projectData.height) {
+
+          this.canvas.setZoom(1);
+
+          this.canvas.setDimensions({
+            width: projectData.width,
+            height: projectData.height,
+          });
+
+
+          const orientacion = projectData.width > projectData.height ? 'horizontal' : 'vertical';
+          localStorage.setItem('tipeBlank', orientacion);
+        }
+
+
+        this.canvas.loadFromJSON(projectData).then(() => {
+          this.canvas.requestRenderAll();
+
+
+          setTimeout(() => {
+            this.fitCanvasToScreen();
+          }, 300);
+        });
+
+      } catch (err) {
+        console.error('Error al procesar el archivo JSON:', err);
+        alert('El archivo seleccionado no es un proyecto válido.');
+      }
+    };
+
+    reader.readAsText(file);
+  };
+
+  input.click();
 }
+
 
 exportAs(format: 'png' | 'jpeg' | 'webp') {
   const currentZoom = this.canvas.getZoom();
