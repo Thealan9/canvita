@@ -8,7 +8,6 @@ export const authGuard = () => {
   if (user) {
     return true;
   } else {
-    console.log("no secion")
     router.navigate(['/login']);
     return false;
   }

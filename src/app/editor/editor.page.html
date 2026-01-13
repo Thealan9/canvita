@@ -1,173 +1,178 @@
-<ion-header class="ion-no-border">
-  <div class="editor-toolbar">
-    <div class="tool-group">
-      <img class="logo" src="assets/logo.jpeg" alt="Logo" />
+<ion-content scrollY="false">
+  <div
+    class="editor-container"
+    [class.is-horizontal]="currentOrientation === 'horizontal'"
+  >
+    <div class="editor-toolbar">
+      <div class="tool-group">
+        <img class="logo" src="assets/logo.jpeg" alt="Logo" />
 
-      <ion-button class="btn-tool" fill="clear" color="dark" (click)="open()"
-        >Abrir</ion-button
-      >
-      <ion-button class="btn-tool" fill="solid" color="primary" (click)="save()"
-        >Guardar</ion-button
-      >
-      <ion-button class="btn-tool" fill="solid" color="secondary" (click)="saveAs()"
-        >Guardar como</ion-button
-      >
-      <ion-button (click)="presentExportMenu()" fill="outline">
-        <ion-icon name="download-outline" slot="start"></ion-icon>
-        Exportar
-      </ion-button>
-    </div>
+        <ion-button
+          class="btn-tool"
+          fill="clear"
+          color="dark"
+          id="click-trigger"
+        >
+          Archivo <ion-icon name="chevron-down-outline" slot="end"></ion-icon>
+        </ion-button>
 
-    <div class="tool-group">
-      <ion-button
-        class="btn-tool"
-        fill="outline"
-        color="dark"
-        (click)="addText()"
-        >+ Texto</ion-button
-      >
-      <ion-button
-        class="btn-tool"
-        fill="outline"
-        color="dark"
-        (click)="addImage()"
-        >+ Imagen</ion-button
-      >
-    </div>
-
-    <div class="tool-group" *ngIf="selectedObjectType === 'textbox'">
-      <ion-select
-        class="compact-select"
-        interface="popover"
-        placeholder="Fuente"
-        (ionChange)="changeFont($event)"
-        [(ngModel)]="currentFontFamily"
-      >
-        <ion-select-option value="Arial">Arial</ion-select-option>
-
-        <ion-select-option value="Georgia">Georgia</ion-select-option>
-
-        <ion-select-option value="Times New Roman">Times</ion-select-option>
-
-        <ion-select-option value="Courier New">Courier</ion-select-option>
-
-        <ion-select-option value="Montserrat">Montserrat</ion-select-option>
-      </ion-select>
-
-      <ion-select
-        class="compact-select"
-        interface="popover"
-        placeholder="px"
-        (ionChange)="changeFontSize($event)"
-        [(ngModel)]="currentFontSize"
-      >
-        <ion-select-option [value]="6">6 px</ion-select-option>
-
-        <ion-select-option [value]="8">8 px</ion-select-option>
-
-        <ion-select-option [value]="10">10 px</ion-select-option>
-
-        <ion-select-option [value]="12">12 px</ion-select-option>
-
-        <ion-select-option [value]="14">14 px</ion-select-option>
-
-        <ion-select-option [value]="16">16 px</ion-select-option>
-
-        <ion-select-option [value]="18">18 px</ion-select-option>
-
-        <ion-select-option [value]="24">24 px</ion-select-option>
-
-        <ion-select-option [value]="32">32 px</ion-select-option>
-
-        <ion-select-option [value]="48">48 px</ion-select-option>
-
-        <ion-select-option [value]="64">64 px</ion-select-option>
-
-        <ion-select-option [value]="80">80 px</ion-select-option>
-      </ion-select>
-    </div>
-
-    <div class="tool-group" style="gap: 15px">
-      <div class="color-wrapper" *ngIf="selectedObjectType === 'textbox'">
-        <input
-          type="color"
-          [(ngModel)]="currentFillColor"
-          (input)="changeColor($event)"
-          value="#000000"
-        />
-        <span>Color</span>
+        <ion-popover
+          trigger="click-trigger"
+          triggerAction="click"
+          dismissOnSelect="true"
+        >
+          <ng-template>
+            <ion-content>
+              <ion-list lines="none">
+                <ion-item button (click)="open()">
+                  <ion-icon name="folder-open-outline" slot="start"></ion-icon>
+                  <ion-label>Abrir</ion-label>
+                </ion-item>
+                <ion-item button (click)="save()">
+                  <ion-icon
+                    name="save-outline"
+                    slot="start"
+                    color="primary"
+                  ></ion-icon>
+                  <ion-label>Guardar</ion-label>
+                </ion-item>
+                <ion-item button (click)="saveAs()">
+                  <ion-icon
+                    name="copy-outline"
+                    slot="start"
+                    color="secondary"
+                  ></ion-icon>
+                  <ion-label>Guardar como</ion-label>
+                </ion-item>
+                <ion-item button (click)="presentExportMenu()">
+                  <ion-icon name="download-outline" slot="start"></ion-icon>
+                  <ion-label>Exportar</ion-label>
+                </ion-item>
+              </ion-list>
+            </ion-content>
+          </ng-template>
+        </ion-popover>
       </div>
-      <div class="color-wrapper">
-        <input
-          type="color"
-          (change)="changeBackground($event)"
-          value="#ffffff"
-        />
-        <span>Fondo</span>
+
+      <div class="tool-group">
+        <ion-button
+          class="btn-tool"
+          fill="outline"
+          color="dark"
+          (click)="addText()"
+          >Texto</ion-button
+        >
+        <ion-button
+          class="btn-tool"
+          fill="outline"
+          color="dark"
+          (click)="addImage()"
+          >Imagen</ion-button
+        >
+        <div class="color-wrapper">
+          <input
+            type="color"
+            (change)="changeBackground($event)"
+            value="#ffffff"
+          />
+          <span>Fondo</span>
+        </div>
+        <ion-item class="btn-tool" (click)="fitCanvasToScreen()">
+          <ion-icon name="contract-outline"></ion-icon>
+        </ion-item>
       </div>
     </div>
 
-    <div
-      class="tool-group"
-      style="border: none"
-      *ngIf="selectedObjectType === 'textbox' || selectedObjectType === 'image'"
-    >
-      <ion-button
-        class="btn-tool"
-        fill="clear"
-        color="dark"
-        (click)="duplicate()"
-        >Duplicar</ion-button
-      >
-      <ion-button
-        class="btn-tool"
-        fill="clear"
-        color="warning"
-        (click)="toggleLock()"
-      >
-        <ion-icon
-          [name]="lockButtonText === 'Bloquear' ? 'lock-open-outline' : 'lock-closed-outline'"
-          slot="start"
-        ></ion-icon>
-        {{ lockButtonText }}
-      </ion-button>
-      <ion-button
-        class="btn-tool"
-        fill="clear"
-        color="danger"
-        (click)="delete()"
-      >
-        <ion-icon name="trash-outline" slot="start"></ion-icon>
-        Eliminar
-      </ion-button>
+    <div class="editor-toolbar" *ngIf="selectedObjectType">
+      <div class="tool-group" *ngIf="selectedObjectType === 'textbox'">
+        <ion-select
+          class="compact-select"
+          interface="popover"
+          placeholder="Fuente"
+          (ionChange)="changeFont($event)"
+          [(ngModel)]="currentFontFamily"
+        >
+          <ion-select-option value="Arial">Arial</ion-select-option>
+          <ion-select-option value="Georgia">Georgia</ion-select-option>
+          <ion-select-option value="Times New Roman">Times</ion-select-option>
+          <ion-select-option value="Courier New">Courier</ion-select-option>
+          <ion-select-option value="Montserrat">Montserrat</ion-select-option>
+        </ion-select>
+
+        <ion-select
+          class="compact-select"
+          interface="popover"
+          placeholder="px"
+          (ionChange)="changeFontSize($event)"
+          [(ngModel)]="currentFontSize"
+        >
+          <ion-select-option
+            *ngFor="let size of [6,8,10,12,14,16,18,24,32,48,64,80]"
+            [value]="size"
+            >{{size}}px</ion-select-option
+          >
+        </ion-select>
+
+        <div class="color-wrapper">
+          <input
+            type="color"
+            [(ngModel)]="currentFillColor"
+            (input)="changeColor($event)"
+          />
+          <span>Color</span>
+        </div>
+      </div>
+
+      <div class="tool-group" *ngIf="selectedObjectType">
+        <ion-button
+          class="btn-tool"
+          fill="clear"
+          color="dark"
+          (click)="duplicate()"
+          >Duplicar</ion-button
+        >
+        <ion-button
+          class="btn-tool"
+          fill="clear"
+          color="warning"
+          (click)="toggleLock()"
+        >
+          <ion-icon
+            [name]="lockButtonText === 'Bloquear' ? 'lock-open-outline' : 'lock-closed-outline'"
+            slot="start"
+          ></ion-icon>
+          {{ lockButtonText }}
+        </ion-button>
+        <ion-button
+          class="btn-tool"
+          fill="clear"
+          color="danger"
+          (click)="delete()"
+        >
+          <ion-icon name="trash-outline" slot="start"></ion-icon> Eliminar
+        </ion-button>
+      </div>
+
+      <div class="tool-group layers-controls" *ngIf="selectedObjectType">
+        <ion-button fill="clear" color="primary" (click)="bringForward()"
+          ><ion-icon name="chevron-up-circle-outline"></ion-icon
+        ></ion-button>
+        <ion-button fill="clear" color="primary" (click)="sendBackwards()"
+          ><ion-icon name="chevron-down-circle-outline"></ion-icon
+        ></ion-button>
+        <ion-button fill="clear" color="secondary" (click)="bringToFront()"
+          ><ion-icon name="arrow-up-outline"></ion-icon
+        ></ion-button>
+        <ion-button fill="clear" color="secondary" (click)="sendToBack()"
+          ><ion-icon name="arrow-down-outline"></ion-icon
+        ></ion-button>
+      </div>
     </div>
 
-    <div *ngIf="selectedObjectType" class="layers-controls">
-      <ion-button fill="clear" color="primary" (click)="bringForward()">
-        <ion-icon name="chevron-up-circle-outline"></ion-icon>
-        Adelante
-      </ion-button>
-
-      <ion-button fill="clear" color="primary" (click)="sendBackwards()">
-        <ion-icon name="chevron-down-circle-outline"></ion-icon>
-        Detrás
-      </ion-button>
-
-      <ion-button fill="clear" color="secondary" (click)="bringToFront()">
-        <ion-icon name="arrow-up-outline"></ion-icon>
-        Al frente
-      </ion-button>
-
-      <ion-button fill="clear" color="secondary" (click)="sendToBack()">
-        <ion-icon name="arrow-down-outline"></ion-icon>
-        Al fondo
-      </ion-button>
+    <div class="canvas-area">
+      <div class="canvas-wrapper">
+        <canvas id="canvas"></canvas>
+      </div>
     </div>
-  </div>
-</ion-header>
-
-<ion-content>
-  <div class="canvas-container">
-    <canvas id="canvas"></canvas>
   </div>
 </ion-content>

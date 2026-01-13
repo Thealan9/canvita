@@ -53,13 +53,54 @@ export class EditorPage implements AfterViewInit {
       }
     }
 
+    setTimeout(() => {
+  this.fitCanvasToScreen();
+}, 500);
+
     this.canvas.on('selection:created', (e) => this.updateUI(e));
     this.canvas.on('selection:updated', (e) => this.updateUI(e));
     this.canvas.on('selection:cleared', () => {
       this.selectedObjectType = null;
     });
+    this.canvas.on('selection:cleared', () => {
+  this.selectedObjectType = null;
+});
   }
+  get currentOrientation() {
+  return localStorage.getItem('tipeBlank') || 'vertical';
+}
+fitCanvasToScreen() {
+  const container = document.querySelector('.canvas-area');
+  if (!container || !this.canvas) return;
 
+  // 1. Determinar el tamaño REAL (base) del diseño
+  // Si no lo tenemos guardado, lo calculamos revirtiendo el zoom actual
+  const currentZoom = this.canvas.getZoom();
+  const baseWidth = this.canvas.getWidth() / currentZoom;
+  const baseHeight = this.canvas.getHeight() / currentZoom;
+
+  // 2. Medir el espacio disponible en el dispositivo ahora mismo
+  const containerWidth = container.clientWidth;
+  const containerHeight = container.clientHeight;
+
+  // 3. Calcular la escala ideal (usamos 0.85 para dejar un margen elegante)
+  const scale = Math.min(
+    (containerWidth * 0.85) / baseWidth,
+    (containerHeight * 0.85) / baseHeight
+  );
+
+  // 4. RESETEAR TODO antes de aplicar lo nuevo
+  this.canvas.setZoom(1); // Reset de escala interna
+
+  // 5. APLICAR las nuevas dimensiones visuales y el zoom
+  this.canvas.setDimensions({
+    width: baseWidth * scale,
+    height: baseHeight * scale
+  });
+
+  this.canvas.setZoom(scale);
+  this.canvas.renderAll();
+}
   addText() {
     const text = new Textbox('Escribe aquí', {
       left: 50,
@@ -123,35 +164,33 @@ export class EditorPage implements AfterViewInit {
     this.canvas.requestRenderAll();
   }
 
-  // async save() {
-  //   if (!this.currentFile) {
-  //     return this.saveAs();
-  //   }
-
-  //   const json = JSON.stringify(this.canvas.toJSON());
-
-  //   const writable = await this.currentFile.createWritable();
-  //   await writable.write(json);
-  //   await writable.close();
-
-  //   alert('Guardado');
-  // }
-
-  async save() {
-    if (!this.currentFile) {
-      return this.saveAs();
-    }
-
-    const json = this.canvas.toJSON();
-    json.width = this.canvas.getWidth();
-    json.height = this.canvas.getHeight();
-
-    const stringJson = JSON.stringify(json);
-
-    const writable = await this.currentFile.createWritable();
-    await writable.write(stringJson);
-    await writable.close();
+ async save() {
+  if (!this.currentFile) {
+    return this.saveAs();
   }
+
+  const currentZoom = this.canvas.getZoom();
+
+  this.canvas.setZoom(1);
+
+  const realWidth = this.canvas.getWidth() / currentZoom;
+  const realHeight = this.canvas.getHeight() / currentZoom;
+
+  const json = this.canvas.toJSON();
+  json.width = realWidth;
+  json.height = realHeight;
+
+  const stringJson = JSON.stringify(json);
+
+  this.canvas.setZoom(currentZoom);
+  this.canvas.requestRenderAll();
+
+  const writable = await this.currentFile.createWritable();
+  await writable.write(stringJson);
+  await writable.close();
+
+  console.log('Guardado con éxito con dimensiones:', realWidth, 'x', realHeight);
+}
 
   async saveAs() {
     this.currentFile = await (window as any).showSaveFilePicker({
@@ -167,103 +206,98 @@ export class EditorPage implements AfterViewInit {
     await this.save();
   }
 
-  // async open() {
-  //   const [fileHandle] = await (window as any).showOpenFilePicker({
-  //     types: [
-  //       {
-  //         description: 'Proyecto',
-  //         accept: { 'application/json': ['.json'] },
-  //       },
-  //     ],
-  //   });
-
-  //   this.currentFile = fileHandle;
-
-  //   const file = await fileHandle.getFile();
-  //   const text = await file.text();
-
-  //   this.canvas.loadFromJSON(text, () => {
-  //     this.canvas.requestRenderAll();
-  //   });
-  // }
   async open() {
-    try {
-      const [fileHandle] = await (window as any).showOpenFilePicker({
-        types: [
-          {
-            description: 'Proyecto',
-            accept: { 'application/json': ['.json'] },
-          },
-        ],
+  try {
+    const [fileHandle] = await (window as any).showOpenFilePicker({
+      types: [{
+        description: 'Proyecto',
+        accept: { 'application/json': ['.json'] },
+      }],
+    });
+
+    this.currentFile = fileHandle;
+    const file = await fileHandle.getFile();
+    const text = await file.text();
+    const projectData = JSON.parse(text);
+
+
+    if (projectData.width && projectData.height) {
+
+      this.canvas.setZoom(1);
+
+      this.canvas.setDimensions({
+        width: projectData.width,
+        height: projectData.height,
       });
 
-      this.currentFile = fileHandle;
-      const file = await fileHandle.getFile();
-      const text = await file.text();
-      const projectData = JSON.parse(text);
-      console.log(projectData);
-
-      if (projectData.width && projectData.height) {
-        this.canvas.setDimensions({
-          width: projectData.width,
-          height: projectData.height,
-        });
-      } else {
-        const tipo = localStorage.getItem('tipeBlank');
-        if (tipo === 'horizontal') {
-          this.canvas.setDimensions({ width: 1100, height: 850 });
-        } else {
-          this.canvas.setDimensions({ width: 500, height: 700 });
-        }
-      }
-
-      this.canvas.loadFromJSON(projectData, () => {
-        this.canvas.requestRenderAll();
-
-        const orientacion =
-          this.canvas.getWidth() > this.canvas.getHeight()
-            ? 'horizontal'
-            : 'vertical';
-        localStorage.setItem('tipeBlank', orientacion);
-      });
-    } catch (err) {
-      console.error('Error al abrir:', err);
+      const orientacion = projectData.width > projectData.height ? 'horizontal' : 'vertical';
+      localStorage.setItem('tipeBlank', orientacion);
     }
+
+    this.canvas.loadFromJSON(projectData).then(() => {
+      this.canvas.requestRenderAll();
+
+      setTimeout(() => {
+        this.fitCanvasToScreen();
+      }, 300);
+    });
+
+  } catch (err) {
+    console.error('Error al abrir:', err);
   }
+}
 
-  exportAs(format: 'png' | 'jpeg' | 'webp') {
-    const objects = this.canvas.getObjects();
-    const lockedObjects: any[] = [];
+exportAs(format: 'png' | 'jpeg' | 'webp') {
+  const currentZoom = this.canvas.getZoom();
+  const currentWidth = this.canvas.getWidth();
+  const currentHeight = this.canvas.getHeight();
 
-    objects.forEach((obj) => {
-      if (obj.lockMovementX) {
-        lockedObjects.push({
-          item: obj,
-          originalOpacity: obj.opacity,
-        });
-        obj.set('opacity', 1);
-      }
-    });
+  this.canvas.setZoom(1);
 
-    this.canvas.renderAll();
+  const realWidth = currentWidth / currentZoom;
+  const realHeight = currentHeight / currentZoom;
 
-    const data = this.canvas.toDataURL({
-      format: format,
-      quality: 0.9,
-      multiplier: 3,
-    });
+  this.canvas.setDimensions({
+    width: realWidth,
+    height: realHeight
+  });
 
-    lockedObjects.forEach((data) => {
-      data.item.set('opacity', data.originalOpacity);
-    });
+  const objects = this.canvas.getObjects();
+  const lockedObjects: any[] = [];
+  objects.forEach((obj) => {
+    if (obj.lockMovementX) {
+      lockedObjects.push({ item: obj, originalOpacity: obj.opacity });
+      obj.set('opacity', 1);
+    }
+  });
 
-    this.canvas.renderAll();
+  this.canvas.renderAll();
 
-    const link = document.createElement('a');
-    link.href = data;
-    link.download = `mi_diseno.${format}`;
-    link.click();
-  }
+
+  const data = this.canvas.toDataURL({
+    format: format,
+    quality: 1,
+    multiplier: 3,
+  });
+
+
+  lockedObjects.forEach((data) => {
+    data.item.set('opacity', data.originalOpacity);
+  });
+
+  this.canvas.setZoom(currentZoom);
+  this.canvas.setDimensions({
+    width: currentWidth,
+    height: currentHeight
+  });
+
+  this.canvas.renderAll();
+
+  const link = document.createElement('a');
+  link.href = data;
+  link.download = `diseño.${format}`;
+  link.click();
+}
 
   async presentExportMenu() {
     const actionSheet = await this.actionSheetCtrl.create({
